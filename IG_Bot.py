@@ -13,7 +13,7 @@ PASSWORD = os.getenv('MY_PASSWORD')  # replace with your environment variable fo
 
 with sync_playwright() as p:
     context = p.chromium.launch_persistent_context(
-        user_data_dir="C:\\Users\\kianm\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 5",
+        user_data_dir="C:\\Users\\kianm\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 5",  # replace with your own Chrome profile
         headless=False,
     )
 
@@ -47,7 +47,7 @@ with sync_playwright() as p:
         page.set_input_files('xpath=//input[@class="_ac69" and @type="file" and @accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime"]', file_path)
 
 
-    def dataset():
+    def fetchPost():
         # Will pick random posts from the source and downloads it
         page.goto(f'https://t.me/meme/{randint(200, 800)}?embed=1&mode=tme')  # replace with your own source
         linkElement = page.wait_for_selector('a.tgme_widget_message_photo_wrap')  
@@ -65,7 +65,7 @@ with sync_playwright() as p:
     
     def follow():
         # Will randomly pick one of these below sources and then follow their n last followers
-        follow_id_list = ["abolfazlghaemy"]  # Replace with your list of usernames
+        follow_id_list = ["username1"]  # Replace with your list of usernames
         random_number = choice(range(len(follow_id_list)))
 
         page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/followers/')
@@ -80,8 +80,5 @@ with sync_playwright() as p:
                 time.sleep(2)  # Wait 2 seconds to avoid too quick actions
 
         print(f"Followed {num_to_follow} followers.")
-
-    dataset()
-
 
     time.sleep(500)
