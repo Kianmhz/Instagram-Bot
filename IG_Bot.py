@@ -1,9 +1,9 @@
 from playwright.sync_api import sync_playwright
 import os
-import time
+from time import sleep
 import requests
 from dotenv import load_dotenv
-from random import choice, randint
+from random import choice, randint, uniform
 import re
 
 load_dotenv()
@@ -19,13 +19,16 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://www.instagram.com/accounts/login/")
+    page.goto("https://www.instagram.com")
 
     # checking if we are on the login page
 
     if "accounts/login" in page.url:
         page.fill("input[name='username']", USERNAME)
+        sleep(uniform(2, 5))
+
         page.fill("input[name='password']", PASSWORD)
+        sleep(uniform(2, 5))
 
         if page.query_selector("button:has-text('Allow essential and optional cookies')"):
             page.click("button:has-text('Allow essential and optional cookies')")
@@ -40,9 +43,10 @@ with sync_playwright() as p:
 
 
     def upload_photo(file_path):
+        # Will upload a photo to post
         page.query_selector("span:has-text('Create')").click()
 
-        time.sleep(5)
+        sleep(uniform(10, 15))
 
         page.set_input_files('xpath=//input[@class="_ac69" and @type="file" and @accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime"]', file_path)
 
@@ -62,23 +66,36 @@ with sync_playwright() as p:
                 file.write(response.content)
         else:
             print('Failed to download the image')
+
     
     def follow():
         # Will randomly pick one of these below sources and then follow their n last followers
         follow_id_list = ["username1"]  # Replace with your list of usernames
         random_number = choice(range(len(follow_id_list)))
 
-        page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/followers/')
+        page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/following/')
 
-        num_to_follow = randint(1, 20)
+        sleep(uniform(10, 15))
 
-        # Locate the follow buttons and click on them
-        for i in range(num_to_follow):
-            follow_button = page.locator("div:has-text('Follow')")
-            if follow_button:
-                follow_button.click()
-                time.sleep(2)  # Wait 2 seconds to avoid too quick actions
+        # dialog = page.query_selector("div[role='dialog'] div._aano")
 
-        print(f"Followed {num_to_follow} followers.")
+        # # If the dialog is found, then scroll inside the dialog until a "Follow" button is found
+        # if dialog:
+        #     while not page.query_selector("div[role='dialog'] button div:text-is('Follow')"):
+        #         # Scroll the dialog
+        #         page.evaluate("arguments[0].scrollTop += 100", dialog)
+        #         sleep(1)  # Allow for potential loading
 
-    time.sleep(500)
+        # Locate the follow buttons
+        follow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Follow')")
+        num_to_follow = randint(1, 9)
+
+        # Follow random number of accounts
+        for button in range(num_to_follow):
+            follow_buttons[button].click()
+            sleep(uniform(2, 5))
+
+        print(f"Followed {num_to_follow} accounts.")
+
+
+    sleep(5)
