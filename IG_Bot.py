@@ -89,10 +89,10 @@ with sync_playwright() as p:
     
     def follow():
         # Will randomly pick one of these below sources and then follow their n last followers
-        follow_id_list = ["username1"]  # Replace with your list of usernames
+        follow_id_list = ["username"]  # Replace with your list of usernames
         random_number = choice(range(len(follow_id_list)))
 
-        page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/following/')
+        page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/followers/')
 
         sleep(uniform(10, 15))
 
@@ -106,4 +106,29 @@ with sync_playwright() as p:
             sleep(uniform(2, 5))
 
         print(f"Followed {num_to_follow} accounts.")
+
+    
+    def unfollow():
+        # For not hitting the Instagram limits
+        page.goto(f'https://www.instagram.com/username/following')
+
+        sleep(uniform(10, 15))
+
+        # Locate the unfollow buttons
+        unfollow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Following')")
+        num_to_unfollow = randint(10, 30)
+
+        # Follow random number of accounts
+        for button in range(num_to_unfollow):
+            unfollow_buttons[button].click()
+            page.wait_for_selector('button:has-text("Unfollow")').click()
+            sleep(uniform(2, 5))
+
+        print(f"Followed {num_to_unfollow} accounts.")
+        
+
+    unfollow()
+
+    sleep(500)
+
 
