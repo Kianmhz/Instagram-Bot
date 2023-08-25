@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import os
-from time import sleep
+from time import sleep, time
 import requests
 from dotenv import load_dotenv
 from random import choice, randint, uniform
@@ -19,7 +19,7 @@ with sync_playwright() as p:
 
     page = context.new_page()
 
-    page.goto("https://www.instagram.com")
+    page.goto("https://www.instagram.com/accounts/login")
 
     # checking if we are on the login page
 
@@ -53,19 +53,38 @@ with sync_playwright() as p:
 
     def fetchPost():
         # Will pick random posts from the source and downloads it
-        page.goto(f'https://t.me/meme/{randint(200, 800)}?embed=1&mode=tme')  # replace with your own source
-        linkElement = page.wait_for_selector('a.tgme_widget_message_photo_wrap')  
-        imageStyle = linkElement.get_attribute('style')  
-        regexPattern = r"background-image:url\('(.*)'\)"  # regex pattern to extract the image url
-        match = re.search(regexPattern, imageStyle)
+        page.goto(f'https://t.me/shitpost/{randint(45000,60000)}?embed=1&mode=tme')  # replace with your own source
+        sleep(uniform(2, 5))
 
-        # Download the image
-        response = requests.get(match.group(1))
-        if response.status_code == 200:
-            with open('image.jpg', 'wb') as file:  
-                file.write(response.content)
-        else:
-            print('Failed to download the image')
+        picElement = page.query_selector('a.tgme_widget_message_photo_wrap')
+        if picElement:
+            imageStyle = picElement.get_attribute('style')  
+            regexPattern = r"background-image:url\('(.*)'\)"  # Regex pattern to extract the image URL
+            match = re.search(regexPattern, imageStyle)
+
+            if match:
+                # Download the image
+                response = requests.get(match.group(1))
+                if response.status_code == 200:
+                    with open('image.jpg', 'wb') as file:  
+                        file.write(response.content)
+                else:
+                    print('Failed to download the image')
+            return
+
+        # If no image, check for a video
+        videoElement = page.query_selector('video.tgme_widget_message_video.js-message_video')
+        if videoElement:
+            videoURL = videoElement.get_attribute('src')
+
+            if videoURL:
+                # Download the video
+                response = requests.get(videoURL)
+                if response.status_code == 200:
+                    with open('video.mp4', 'wb') as file:
+                        file.write(response.content)
+                else:
+                    print('Failed to download the video')
 
     
     def follow():
@@ -76,15 +95,6 @@ with sync_playwright() as p:
         page.goto(f'https://www.instagram.com/{follow_id_list[random_number]}/following/')
 
         sleep(uniform(10, 15))
-
-        # dialog = page.query_selector("div[role='dialog'] div._aano")
-
-        # # If the dialog is found, then scroll inside the dialog until a "Follow" button is found
-        # if dialog:
-        #     while not page.query_selector("div[role='dialog'] button div:text-is('Follow')"):
-        #         # Scroll the dialog
-        #         page.evaluate("arguments[0].scrollTop += 100", dialog)
-        #         sleep(1)  # Allow for potential loading
 
         # Locate the follow buttons
         follow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Follow')")
@@ -97,5 +107,3 @@ with sync_playwright() as p:
 
         print(f"Followed {num_to_follow} accounts.")
 
-
-    sleep(5)
