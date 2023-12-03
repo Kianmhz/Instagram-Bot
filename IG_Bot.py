@@ -67,12 +67,23 @@ with sync_playwright() as p:
 
     def fetchPost():
         # Number of attempts to fetch a post
-        max_attempts = 3
+        max_attempts = 10
         attempts = 0
+
+        # List of sources to fetch posts from, replace with your list of sources
+        sources = [
+            ("https://t.me/Radicalshitposting/", (42000, 44000)),
+            ("https://t.me/BictorsShitpost/", (38000, 41000)),
+            ("https://t.me/shitpost/", (54000, 57000))
+        ]
+
 
         while attempts < max_attempts:
             try:
-                page.goto(f'https://t.me/shitpost/{randint(45000,60000)}?embed=1&mode=tme')  # replace with your own source
+                source, randint_range = choice(sources)
+                url = f"{source}{randint(*randint_range)}?embed=1&mode=tme"
+
+                page.goto(url)
                 sleep(uniform(5, 10))
 
                 # Check for image
@@ -118,7 +129,7 @@ with sync_playwright() as p:
     
     def follow():
          # Will randomly pick one of these below sources and then follow their n last followers
-        follow_id_list = ["username"]  # Replace with your list of usernames
+        follow_id_list = ["user"]  # Replace with your list of usernames
 
         try:
             random_number = choice(range(len(follow_id_list)))
@@ -130,22 +141,44 @@ with sync_playwright() as p:
 
         try:
             # Locate the follow buttons
+            unfollow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Following')")
             follow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Follow')")
+            unfollow_buttons.extend(follow_buttons)
+            follow_buttons = unfollow_buttons
             num_to_follow = randint(1, 9)
         except Exception as e:
             logging.error(f"Error locating the follow buttons: {e}")
             return
 
         followed_count = 0  # Track the actual number of successful follows
+        button = 0  # Keep track of the current button index
 
         # Follow a random number of accounts
-        for button in range(num_to_follow):
+        while followed_count < num_to_follow:
+            print(button)
             try:
+                if follow_buttons[button].inner_html() == "Following":
+                    button += 1
+                    follow_buttons[button].scroll_into_view_if_needed()
+                    sleep(uniform(1, 2))
+                    try:
+                        # Locate the follow buttons
+                        unfollow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Following')")
+                        follow_buttons = page.query_selector_all("div[role='dialog'] button div:text-is('Follow')")
+                        unfollow_buttons.extend(follow_buttons)
+                        follow_buttons = unfollow_buttons
+                    except Exception as e:
+                        logging.error(f"Error locating the follow buttons: {e}")
+                        return
+                    continue
                 follow_buttons[button].click()
-                sleep(uniform(2, 5))
+                button += 1
+                sleep(uniform(1, 2))
                 followed_count += 1
             except Exception as e:
-                logging.error(f"Error following account number {button + 1}: {e}")
+                button += 1
+                logging.error(f"Error following account number {button}: {e}")
+                return
 
         logging.info(f"Followed {followed_count} accounts.")
 
@@ -180,6 +213,10 @@ with sync_playwright() as p:
                 logging.error(f"Error unfollowing account number {button + 1}: {e}")
 
         logging.info(f"Unfollowed {unfollowed_count} accounts.")
+
+    follow()
+
+
 
     # Start the script
     script_start_time = time()  # To keep track of when the script started running
@@ -226,6 +263,8 @@ with sync_playwright() as p:
         if login_attempts == MAX_LOGIN_ATTEMPTS:
             logging.error("Reached max login attempts. Please check your credentials or the page structure.")
             break  # Exit the main loop
+
+        follow()
 
         # Define the total number of posts to make in the day
         num_of_posts_today = randint(4, 6)
