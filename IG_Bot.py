@@ -186,7 +186,7 @@ with sync_playwright() as p:
     def unfollow():
         try:
             # Navigate to the following page
-            page.goto(f'https://www.instagram.com/username/following')
+            page.goto(f'https://www.instagram.com/{USERNAME}/following')
             sleep(uniform(5, 10))
         except Exception as e:
             logging.error(f"Error navigating to the following page: {e}")
@@ -213,8 +213,6 @@ with sync_playwright() as p:
                 logging.error(f"Error unfollowing account number {button + 1}: {e}")
 
         logging.info(f"Unfollowed {unfollowed_count} accounts.")
-
-    follow()
 
 
 
