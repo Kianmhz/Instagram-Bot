@@ -72,9 +72,9 @@ with sync_playwright() as p:
 
         # List of sources to fetch posts from, replace with your list of sources
         sources = [
-            ("https://t.me/Radicalshitposting/", (42000, 44000)),
-            ("https://t.me/BictorsShitpost/", (38000, 41000)),
-            ("https://t.me/shitpost/", (54000, 57000))
+            ("https://t.me/Radicalshitposting/", (44000, 47000)),
+            ("https://t.me/BictorsShitpost/", (39000, 42000)),
+            ("https://t.me/shitpost/", (53000, 56000))
         ]
 
 
@@ -129,7 +129,7 @@ with sync_playwright() as p:
     
     def follow():
          # Will randomly pick one of these below sources and then follow their n last followers
-        follow_id_list = ["user"]  # Replace with your list of usernames
+        follow_id_list = ["6.memes.9"]  # Replace with your list of usernames
 
         try:
             random_number = choice(range(len(follow_id_list)))
@@ -263,8 +263,6 @@ with sync_playwright() as p:
         if login_attempts == MAX_LOGIN_ATTEMPTS:
             logging.error("Reached max login attempts. Please check your credentials or the page structure.")
             break  # Exit the main loop
-
-        follow()
 
         # Define the total number of posts to make in the day
         num_of_posts_today = randint(4, 6)
