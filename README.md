@@ -39,7 +39,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Thanks to the Python Playwright community for providing excellent documentation.
+Thanks to the Python Playwright community for providing excellent documentation.
 
 ## Disclaimer and Ethical Use
 
