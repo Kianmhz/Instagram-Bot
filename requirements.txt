@@ -1,0 +1,4 @@
+# Requirements for IG_Bot.py
+playwright
+requests
+python-dotenv
